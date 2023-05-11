@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing API</title>
+</head>
+<body>
+    <h1>Hi, open Console</h1>
+    <textarea id="chat" disabled readonly>
+        [SYSTEM||AUTOMATIC MESSAGE] Start chatting.
+    </textarea>
+    <form id="send_message_form">
+        <input type="text" class="message">
+    </form>
+    <script src="client.js"></script>
+    <script>
+        const a = new html();
+        const node = a.AI();
+        const ai = new node({
+            worker: "MAIN"
+        });
+
+        const input = document.querySelector("input.message");
+        const chatarea = document.querySelector("textarea#chat");
+        const message_form = document.querySelector("form#send_message_form");
+
+        function microphonePrompt() {
+            navigator.mediaDevices.getUserMedia({audio:true,video:false});
+        }
+
+        function videoPrompt() {
+            navigator.mediaDevices.getUserMedia({audio:false,video:true});
+        }
+
+        AI__SET_INTENTS([
+            {response: ai.randomResponse(["Hello!", "Hi.", "I'm not eager to speak."]), words: ["hello", "world", "hi", "yo"]},
+            {response: "I'm listening...", words: ["speak", "want to", "wanna"]},
+            {response: "I am giving you the prompt now!", words: ["microphone", "talk"], command: microphonePrompt},
+            {response: "I am giving you the prompt now!", words: ["video", "camera"], command: videoPrompt}
+        ]);
+        
+        message_form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // do a few functions to get the response
+            let received = ai.run(input.value.toLowerCase(), function(err) {
+                if (err == "NO_INTENT_RESULT") {
+                    chatarea.insertAdjacentText('beforeend', `\n${input.value}`);
+                    return chatarea.insertAdjacentText('beforeend', `\n[SYSTEM] No response was found or received. ERR Code: ${err}`);
+                }
+            });
+            chatarea.insertAdjacentText('beforeend', `\n${input.value}`)
+            chatarea.insertAdjacentText('beforeend', `\n${received}`);
+            return false;
+        });
+    </script>
+</body>
+</html>
